@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Keuangan PGRI Cibugel v4.2</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="https://ktadigitalpgri.org/assets/dist/img/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #f4f7fe; }
+        .sidebar { transition: 0.3s; transform: translateX(-100%); z-index: 1000; }
+        .sidebar.active { transform: translateX(0); }
+        .glass-card { background: white; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="max-w-md mx-auto relative overflow-x-hidden">
+
+    <div id="sidebar" class="sidebar fixed inset-y-0 left-0 w-80 bg-slate-900 text-white p-6 shadow-2xl no-print">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-xl font-bold italic text-blue-400">PGRI CABANG CIBUGEL</h2>
+            <button onclick="toggleSidebar()"><i class="fas fa-times text-2xl"></i></button>
+        </div>
+        <nav class="space-y-4">
+            <a href="#" onclick="showPage('input')" class="block p-4 bg-slate-800 rounded-xl"><i class="fas fa-edit mr-3"></i> Input Setoran</a>
+            <a href="#" onclick="cekLogin('keluar')" class="block p-4 hover:bg-slate-800 rounded-xl text-red-300"><i class="fas fa-lock mr-3"></i> Input Pengeluaran</a>
+            <a href="#" onclick="cekLogin('rekap')" class="block p-4 hover:bg-slate-800 rounded-xl text-blue-300"><i class="fas fa-lock mr-3"></i> Rekap & Cetak Laporan</a>
+            <hr class="border-slate-700">
+            <a href="#" onclick="location.reload()" class="block p-4 text-red-400"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
+        </nav>
+    </div>
+
+    <header class="p-4 flex justify-between items-center bg-white border-b sticky top-0 z-50 no-print">
+        <button onclick="toggleSidebar()" class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-bars text-xl"></i></button>
+        <img src="https://ktadigitalpgri.org/assets/dist/img/logo.png" class="h-10">
+        <div class="w-10"></div>
+    </header>
+
+    <main id="page-input" class="p-4 space-y-6 pb-24 no-print">
+        <div class="glass-card p-6 bg-blue-600 text-white text-center">
+            <p class="text-xs opacity-80 uppercase tracking-widest">Estimasi Total Iuran</p>
+            <h1 id="live-total-display" class="text-3xl font-black mt-1">Rp 0</h1>
+        </div>
+        <form id="paymentForm" class="space-y-4">
+            <div class="glass-card p-4 space-y-3">
+                <select name="ranting" required class="w-full p-3 bg-gray-50 border rounded-xl font-bold">
+                    <option value="">Pilih Ranting...</option>
+                     <option>Semua Ranting</option><option>Ranting 1</option><option>Ranting 2</option><option>Ranting 3</option><option>Ranting 4</option><option>Ranting 5</option><option>Ranting 6</option><option>Ranting 7</option>
+                </select>
+                <div class="grid grid-cols-2 gap-2">
+                    <select name="bulan" class="p-3 bg-gray-50 border rounded-xl">
+                        <option value="Januari">Januari</option><option value="Februari">Februari</option>
+                        <option value="Maret">Maret</option><option value="April">April</option>
+                        <option value="Mei">Mei</option><option value="Juni">Juni</option>
+                        <option value="Juli">Juli</option><option value="Agustus">Agustus</option>
+                        <option value="September">September</option><option value="Oktober">Oktober</option>
+                        <option value="November">November</option><option value="Desember">Desember</option>
+                    </select>
+                    <select name="tahun" class="p-3 bg-gray-50 border rounded-xl">
+                        <option value="2026">2026</option><option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                         <option value="2029">2029</option>
+                          <option value="2030">2030</option>
+                           <option value="2031">2031</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 space-y-3 text-sm">
+                <label class="text-[10px] font-bold text-gray-400 uppercase">Jumlah Anggota</label>
+                <div class="flex justify-between items-center"><span>PNS (15k)</span><input type="number" name="pns" oninput="updateKalkulator()" class="w-16 p-1 border rounded text-center"></div>
+                <div class="flex justify-between items-center"><span>PPPK (15k)</span><input type="number" name="pppk" oninput="updateKalkulator()" class="w-16 p-1 border rounded text-center"></div>
+                <div class="flex justify-between items-center"><span>PPPK PW Ser (10k)</span><input type="number" name="pppk_ser" oninput="updateKalkulator()" class="w-16 p-1 border rounded text-center"></div>
+                <div class="flex justify-between items-center"><span>PPPK PW (7.5k)</span><input type="number" name="pppk_pw" oninput="updateKalkulator()" class="w-16 p-1 border rounded text-center"></div>
+                <div class="flex justify-between items-center"><span>Honor (7.5k)</span><input type="number" name="honor" oninput="updateKalkulator()" class="w-16 p-1 border rounded text-center"></div>
+            </div>
+
+            <div class="glass-card p-4 text-center">
+                <input type="file" id="input-foto" accept="image/*" class="hidden">
+                <div onclick="document.getElementById('input-foto').click()" id="btn-upload-label" class="p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 cursor-pointer hover:bg-gray-50">
+                    <i class="fas fa-camera text-xl"></i><p class="text-[10px] font-bold">UPLOAD STRUK</p>
+                </div>
+                <div id="preview-container" class="hidden relative mt-2">
+                    <img id="img-preview" class="w-full h-40 object-cover rounded-xl border">
+                    <button type="button" onclick="hapusFoto()" class="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full text-xs">Hapus</button>
+                </div>
+            </div>
+
+            <input type="hidden" name="total_bayar" id="hidden-total" value="0">
+            <button type="submit" id="btnSimpan" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black uppercase">Simpan & Kirim WA</button>
+        </form>
+    </main>
+
+    <main id="page-keluar" class="hidden p-4 space-y-4 pb-24 no-print">
+        <h2 class="font-black text-xl text-red-600 mb-4 uppercase">Input Pengeluaran</h2>
+        <form id="expenseForm" class="space-y-4">
+            <div class="glass-card p-4 space-y-3">
+                <input type="date" name="tgl_keluar" required class="w-full p-3 border rounded-xl">
+                <input type="text" name="keperluan" placeholder="Keterangan Pengeluaran" required class="w-full p-3 border rounded-xl">
+                
+                <input type="text" id="nominal_mask" placeholder="Nominal Rp (Contoh: 100.000)" required class="w-full p-3 border rounded-xl font-bold">
+                <input type="hidden" name="nominal" id="nominal_asli">
+            </div>
+            <button type="submit" id="btnSimpanKeluar" class="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase">Simpan Pengeluaran</button>
+        </form>
+    </main>
+
+
+<main id="page-rekap" class="hidden p-4 space-y-4 pb-24">
+    <div class="flex justify-between items-center no-print">
+        <h2 class="font-black text-xl uppercase">Rekapitulasi</h2>
+        <button onclick="window.print()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold">
+            <i class="fas fa-print mr-2"></i> CETAK
+        </button>
+    </div>
+
+    <div class="glass-card p-4 grid grid-cols-2 gap-2 no-print">
+        <div>
+            <label class="text-[10px] font-bold text-gray-400">FILTER RANTING</label>
+            <select id="filter-ranting" onchange="aplikasikanFilter()" class="w-full p-2 bg-gray-50 border rounded-lg text-xs">
+                <option value="">Semua Ranting</option>
+                <option>Ranting 1</option><option>Ranting 2</option><option>Ranting 3</option>
+                <option>Ranting 4</option><option>Ranting 5</option><option>Ranting 6</option>
+                <option>Ranting 7</option>
+            </select>
+        </div>
+        <div>
+            <label class="text-[10px] font-bold text-gray-400">FILTER BULAN</label>
+            <select id="filter-bulan" onchange="aplikasikanFilter()" class="w-full p-2 bg-gray-50 border rounded-lg text-xs">
+                <option value="">Semua Bulan</option>
+                <option>Januari</option><option>Februari</option><option>Maret</option>
+                <option>April</option><option>Mei</option><option>Juni</option>
+                <option>Juli</option><option>Agustus</option><option>September</option>
+                <option>Oktober</option><option>November</option><option>Desember</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="print-area">
+        <div class="header-cetak text-center mb-4 border-b-2 border-black pb-2">
+            <h2 class="font-bold text-lg uppercase">Laporan Keuangan PGRI Cabang Cibugel</h2>
+            <p class="text-xs">Filter: <span id="info-filter">Semua Data</span></p>
+            <p class="text-[10px]">Dicetak pada: <span id="tgl-cetak"></span></p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center text-[10px] mb-4">
+            <div class="bg-green-600 p-2 rounded text-white border border-green-700">
+                <b>MASUK</b><br><span id="rekap-masuk">Rp 0</span>
+            </div>
+            <div class="bg-red-600 p-2 rounded text-white border border-red-700">
+                <b>KELUAR</b><br><span id="rekap-keluar">Rp 0</span>
+            </div>
+            <div class="bg-slate-800 p-2 rounded text-white border border-blue-400">
+                <b>SALDO</b><br><span id="rekap-saldo">Rp 0</span>
+            </div>
+        </div>
+
+        <table class="w-full text-[10px] border-collapse border border-black">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border border-black p-1 w-8">No</th>
+                    <th class="border border-black p-1">Tanggal/Periode</th>
+                    <th class="border border-black p-1">Keterangan</th>
+                    <th class="border border-black p-1">Masuk</th>
+                    <th class="border border-black p-1">Keluar</th>
+                </tr>
+            </thead>
+            <tbody id="table-body-rekap"></tbody>
+        </table>
+
+        <div class="mt-8 grid grid-cols-2 text-center text-[10px] hidden print:grid">
+            <div>Mengetahui,<br>Ketua Cabang<br><br><br><br>( ____________________ )</div>
+            <div>Cibugel, <span id="tgl-ttd"></span><br>Bendahara,<br><br><br><br>( ____________________ )</div>
+        </div>
+    </div>
+</main>
+
+
+  
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz8ULekCWZp0BxQJYj14yhoRHn9gVck58ZHaVTmTSFBCEZUPFC7AP-TxbLx6Q_FK6qT/exec'; 
+        const WA_BENDAHARA = "6285317230473";
+        const PIN_BEND_CABANG = "123456"; 
+        const TARIF = { pns: 15000, pppk: 15000, pppk_ser: 10000, pppk_pw: 7500, honor: 7500 };
+        let isLoggedIn = false;
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+
+        function showPage(page) {
+            document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
+            document.getElementById('page-' + page).classList.remove('hidden');
+            if(page === 'rekap') muatDataRekap();
+            if(window.innerWidth < 768) toggleSidebar();
+        }
+
+        function cekLogin(target) {
+            if(isLoggedIn) return showPage(target);
+            const p = prompt("Masukkan PIN Bendahara:");
+            if(p === PIN_BEND_CABANG) { isLoggedIn = true; showPage(target); } else { alert("PIN Salah!"); }
+        }
+
+        function updateKalkulator() {
+            const pns = document.getElementsByName('pns')[0].value || 0;
+            const pppk = document.getElementsByName('pppk')[0].value || 0;
+            const pppk_ser = document.getElementsByName('pppk_ser')[0].value || 0;
+            const pppk_pw = document.getElementsByName('pppk_pw')[0].value || 0;
+            const honor = document.getElementsByName('honor')[0].value || 0;
+            const total = (pns*TARIF.pns) + (pppk*TARIF.pppk) + (pppk_ser*TARIF.pppk_ser) + (pppk_pw*TARIF.pppk_pw) + (honor*TARIF.honor);
+            document.getElementById('live-total-display').innerText = "Rp " + total.toLocaleString('id-ID');
+            document.getElementById('hidden-total').value = total;
+        }
+
+        // FUNGSI TITIK OTOMATIS UNTUK PENGELUARAN
+        const nominalMask = document.getElementById('nominal_mask');
+        const nominalAsli = document.getElementById('nominal_asli');
+        nominalMask.addEventListener('input', function(e) {
+            let value = this.value.replace(/[^0-9]/g, '');
+            nominalAsli.value = value;
+            this.value = value ? parseInt(value).toLocaleString('id-ID') : '';
+        });
+
+        // FUNGSI FOTO DIPERBAIKI
+        document.getElementById('input-foto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ex) => {
+                    document.getElementById('img-preview').src = ex.target.result;
+                    document.getElementById('preview-container').classList.remove('hidden');
+                    document.getElementById('btn-upload-label').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function hapusFoto() {
+            document.getElementById('input-foto').value = "";
+            document.getElementById('preview-container').classList.add('hidden');
+            document.getElementById('btn-upload-label').classList.remove('hidden');
+        }
+
+        // SIMPAN IURAN
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSimpan');
+            btn.disabled = true; btn.innerText = "MENYIMPAN...";
+            const fd = new FormData(e.target);
+            let base64 = "", type = "";
+            const fileInput = document.getElementById('input-foto');
+            if (fileInput.files[0]) {
+                const r = new FileReader();
+                await new Promise(res => { r.onload=()=>{base64=r.result.split(',')[1]; type=fileInput.files[0].type; res();}; r.readAsDataURL(fileInput.files[0]); });
+            }
+            fetch(scriptURL, {
+                method: 'POST', mode: 'no-cors',
+                body: JSON.stringify({
+                    type: "IURAN", ranting: fd.get('ranting'), bulan: fd.get('bulan'), tahun: fd.get('tahun'),
+                    pns: fd.get('pns')||0, pppk: fd.get('pppk')||0, pppk_ser: fd.get('pppk_ser')||0, pppk_pw: fd.get('pppk_pw')||0, honor: fd.get('honor')||0,
+                    total_bayar: fd.get('total_bayar'), base64: base64, fileType: type
+                })
+            }).then(() => {
+                const msg = `*LAPORAN IURAN*%0ARanting: ${fd.get('ranting')}%0APeriode: ${fd.get('bulan')} ${fd.get('tahun')}%0ATotal: Rp ${parseInt(fd.get('total_bayar')).toLocaleString('id-ID')}`;
+                window.open(`https://api.whatsapp.com/send?phone=${WA_BENDAHARA}&text=${msg}`, '_blank');
+                location.reload();
+            });
+        });
+
+        // SIMPAN PENGELUARAN
+        document.getElementById('expenseForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const nominal = document.getElementById('nominal_asli').value;
+            fetch(scriptURL, {
+                method: 'POST', mode: 'no-cors',
+                body: JSON.stringify({ type: "PENGELUARAN", tgl: fd.get('tgl_keluar'), keperluan: fd.get('keperluan'), nominal: nominal })
+            }).then(() => { alert("Pengeluaran Dicatat!"); location.reload(); });
+        });
+
+let dataMaster = { iuran: [], pengeluaran: [] }; // Simpan data di sini
+
+function muatDataRekap() {
+    const tbody = document.getElementById('table-body-rekap');
+    tbody.innerHTML = "<tr><td colspan='5' class='text-center p-4'>Memuat data dari server...</td></tr>";
+    
+    fetch(scriptURL)
+    .then(r => r.json())
+    .then(data => {
+        dataMaster = data; // Simpan data ke variabel global
+        aplikasikanFilter(); // Jalankan filter pertama kali
+    })
+    .catch(err => {
+        tbody.innerHTML = "<tr><td colspan='5' class='text-center p-4 text-red-500'>Gagal memuat data. Periksa koneksi atau URL Script.</td></tr>";
+    });
+}
+
+function aplikasikanFilter() {
+    const filterRanting = document.getElementById('filter-ranting').value;
+    const filterBulan = document.getElementById('filter-bulan').value;
+    const tbody = document.getElementById('table-body-rekap');
+    const infoFilter = document.getElementById('info-filter');
+    
+    tbody.innerHTML = "";
+    let inT = 0, outT = 0, no = 1;
+
+    // 1. Filter Data Iuran (Masuk)
+    dataMaster.iuran.forEach(i => {
+        const matchesRanting = filterRanting === "" || i.ranting === filterRanting;
+        const matchesBulan = filterBulan === "" || i.periode.includes(filterBulan);
+
+        if (matchesRanting && matchesBulan) {
+            inT += parseInt(i.total);
+            tbody.innerHTML += `
+                <tr>
+                    <td class="border border-black p-1 text-center">${no++}</td>
+                    <td class="border border-black p-1 text-center">${i.tgl}<br>${i.periode}</td>
+                    <td class="border border-black p-1">${i.ranting}</td>
+                    <td class="border border-black p-1 text-center font-bold text-green-700">Rp${parseInt(i.total).toLocaleString('id-ID')}</td>
+                    <td class="border border-black p-1 text-center">-</td>
+                </tr>`;
+        }
+    });
+
+    // 2. Filter Data Pengeluaran (Keluar)
+    // Catatan: Pengeluaran biasanya tidak punya ranting, jadi filter ranting akan mengosongkan data keluar
+    dataMaster.pengeluaran.forEach(o => {
+        // Logika: Jika filter ranting diisi, pengeluaran disembunyikan (karena pengeluaran milik Cabang, bukan Ranting)
+        const matchesRanting = filterRanting === ""; 
+        const matchesBulan = filterBulan === "" || getNamaBulanDariTgl(o.tgl) === filterBulan;
+
+        if (matchesRanting && matchesBulan) {
+            outT += parseInt(o.nominal);
+            tbody.innerHTML += `
+                <tr class="bg-gray-50">
+                    <td class="border border-black p-1 text-center">${no++}</td>
+                    <td class="border border-black p-1 text-center">${o.tgl}</td>
+                    <td class="border border-black p-1">${o.keperluan}</td>
+                    <td class="border border-black p-1 text-center">-</td>
+                    <td class="border border-black p-1 text-center font-bold text-red-700">Rp${parseInt(o.nominal).toLocaleString('id-ID')}</td>
+                </tr>`;
+        }
+    });
+
+    // Update Header Rekap
+    document.getElementById('rekap-masuk').innerText = "Rp " + inT.toLocaleString('id-ID');
+    document.getElementById('rekap-keluar').innerText = "Rp " + outT.toLocaleString('id-ID');
+    document.getElementById('rekap-saldo').innerText = "Rp " + (inT - outT).toLocaleString('id-ID');
+    document.getElementById('tgl-cetak').innerText = new Date().toLocaleString('id-ID');
+    document.getElementById('tgl-ttd').innerText = new Date().toLocaleDateString('id-ID');
+    
+    // Update teks info filter
+    infoFilter.innerText = (filterRanting || "Semua Ranting") + " - " + (filterBulan || "Semua Bulan");
+}
+
+// Fungsi pembantu untuk deteksi bulan dari tanggal (dd/mm/yyyy)
+function getNamaBulanDariTgl(tglString) {
+    const bln = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const parts = tglString.split('/');
+    return bln[parseInt(parts[1]) - 1];
+}        
+
+    </script>
+</body>
+</html>
