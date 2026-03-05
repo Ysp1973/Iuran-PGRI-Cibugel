@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Keuangan PGRI Cibugel v4.2</title>
+    <title>Sistem Keuangan PGRI Cibugel</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="https://ktadigitalpgri.org/assets/dist/img/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -83,16 +83,19 @@
                 <div class="flex justify-between items-center"><span>Honor (7.5k)</span><input type="number" name="honor" oninput="updateKalkulator()" class="w-16 p-1 border rounded text-center"></div>
             </div>
 
-            <div class="glass-card p-4 text-center">
-                <input type="file" id="input-foto" accept="image/*" class="hidden">
-                <div onclick="document.getElementById('input-foto').click()" id="btn-upload-label" class="p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 cursor-pointer hover:bg-gray-50">
-                    <i class="fas fa-camera text-xl"></i><p class="text-[10px] font-bold">UPLOAD STRUK</p>
-                </div>
-                <div id="preview-container" class="hidden relative mt-2">
-                    <img id="img-preview" class="w-full h-40 object-cover rounded-xl border">
-                    <button type="button" onclick="hapusFoto()" class="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full text-xs">Hapus</button>
-                </div>
-            </div>
+<div class="glass-card p-4 text-center">
+    <input type="file" id="input-foto" accept="image/*" capture="camera" class="hidden">
+    
+    <div onclick="document.getElementById('input-foto').click()" id="btn-upload-label" class="p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 cursor-pointer hover:bg-gray-50">
+        <i class="fas fa-camera text-xl"></i>
+        <p class="text-[10px] font-bold">AMBIL FOTO STRUK</p>
+    </div>
+    
+    <div id="preview-container" class="hidden relative mt-2">
+        <img id="img-preview" class="w-full h-40 object-cover rounded-xl border">
+        <button type="button" onclick="hapusFoto()" class="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full text-xs">Hapus</button>
+    </div>
+</div>          
 
             <input type="hidden" name="total_bayar" id="hidden-total" value="0">
             <button type="submit" id="btnSimpan" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black uppercase">Simpan & Kirim WA</button>
@@ -241,11 +244,11 @@
             }
         });
 
-        function hapusFoto() {
-            document.getElementById('input-foto').value = "";
-            document.getElementById('preview-container').classList.add('hidden');
-            document.getElementById('btn-upload-label').classList.remove('hidden');
-        }
+function hapusFoto() {
+    document.getElementById('input-foto').value = ""; // Kosongkan input file
+    document.getElementById('preview-container').classList.add('hidden'); // Sembunyikan gambar
+    document.getElementById('btn-upload-label').classList.remove('hidden'); // Munculkan lagi tombol upload
+}
 
         // SIMPAN IURAN
         document.getElementById('paymentForm').addEventListener('submit', async (e) => {
@@ -366,6 +369,8 @@ function getNamaBulanDariTgl(tglString) {
     return bln[parseInt(parts[1]) - 1];
 }        
 
+
     </script>
 </body>
 </html>
+            
